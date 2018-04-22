@@ -2,18 +2,26 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Dictionary;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -340,7 +348,7 @@ public class AdminGui extends Application
 	
 	public String[] createQuestion()
 	{
-		String[] args = {"", "", "", "", "", "", "", "", ""};
+		String[] args = {"", "", "", "", "", "", "", "", "", "", "", ""};
 		return editQuestion(args);
 	}
 	
@@ -351,46 +359,46 @@ public class AdminGui extends Application
 		Scene scene = new Scene(root, 800, 600);
 		stage.setScene(scene);
 		InputBox question = new InputBox("question:");
-		InputBox[][] answersWrong = new InputBox[3][2];
-		InputBox[] answerCorrect = new InputBox[2];
+		InputBox[][] answersWrong = new InputBox[3][3];
+		InputBox[] answerCorrect = new InputBox[3];
 		
-		int[] position = {200, 100};
+		int[] position = {100, 100};
 		
 		question.setCentrePosition(position);
-		position[1] += 100;
+		position[1] += 50;
 		InputBox engBox = new InputBox("Correct answer in English:", position);
 		engBox.box.setText(previousValues[1]);
 		answerCorrect[0] = engBox;
-		InputBox welshBox = new InputBox("Correct answer in Welsh:", new int[] {position[0] + 300, position[1]});
+		InputBox welshBox = new InputBox("Correct answer in Welsh:", new int[] {position[0] + 200, position[1]});
 		welshBox.box.setText(previousValues[2]);
 		answerCorrect[1] = welshBox;
+		InputBox pictureBox = new InputBox("Picture location:", new int[] {position[0] + 400, position[1]});
 		position[1] += 100;
-		root.getChildren().addAll(question.box, question.name);
-		root.getChildren().addAll(engBox.box, engBox.name);
-		root.getChildren().addAll(welshBox.box, welshBox.name);
-		
-		position[1] += 200;
+		root.getChildren().addAll(question.box, question.name, engBox.box, engBox.name, welshBox.box, welshBox.name, pictureBox.box, pictureBox.name);
 		
 		for(int i = 0; i < 3; i++)
 		{
 			engBox = new InputBox("Wrong answer " + (i + 1) + " in English:", position);
-			engBox.box.setText(previousValues[3 + 2 * i]);
-			welshBox = new InputBox("Wrong answer " + (i + 1) + " in Welsh:", new int[] {position[0] + 300, position[1]});
-			welshBox.box.setText(previousValues[4 + 2 * i]);
-			answersWrong[i] = new InputBox[] {engBox, welshBox};
+			engBox.box.setText(previousValues[3 + 3 * i]);
+			welshBox = new InputBox("Wrong answer " + (i + 1) + " in Welsh:", new int[] {position[0] + 200, position[1]});
+			welshBox.box.setText(previousValues[4 + 3 * i]);
+			pictureBox = new InputBox("Picture location:", new int[] {position[0] + 400, position[1]});
+			answersWrong[i] = new InputBox[] {engBox, welshBox, pictureBox};
 			position[1] += 50;
-			root.getChildren().addAll(engBox.box, engBox.name);
-			root.getChildren().addAll(welshBox.box, welshBox.name);
+			root.getChildren().addAll(engBox.box, engBox.name, welshBox.box, welshBox.name, pictureBox.box, pictureBox.name);
 		}
 		String questionStr = question.box.getText();
 		String correctEngStr = answerCorrect[0].box.getText();
 		String correctWelStr = answerCorrect[1].box.getText();
 		String wrongEng1Str = answersWrong[0][0].box.getText();
 		String wrongWel1Str = answersWrong[0][1].box.getText();
+		String wrongPic1Str = answersWrong[0][2].box.getText();
 		String wrongEng2Str = answersWrong[1][0].box.getText();
 		String wrongWel2Str = answersWrong[1][1].box.getText();
+		String wrongPic2Str = answersWrong[1][2].box.getText();
 		String wrongEng3Str = answersWrong[2][0].box.getText();
 		String wrongWel3Str = answersWrong[2][1].box.getText();
+		String wrongPic3Str = answersWrong[2][2].box.getText();
 		
 		Button submitBtn = new Button("submit");
 		submitBtn.setLayoutX(position[0] + 50);
@@ -407,19 +415,78 @@ public class AdminGui extends Application
 		return new String[] {questionStr, correctEngStr, correctWelStr, wrongEng1Str, wrongWel1Str, wrongEng2Str, wrongWel2Str, wrongEng3Str, wrongWel3Str};
 	}
 	
+	public String changeQuizPath(String newPath, Stage stage)
+	{
+		TextField input = new TextField();
+		Button submit = new Button("continue");
+		submit.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				return;
+			}
+		});
+		return input.getText();
+	}
+	
+	public void createStatsFile(String filePath, String school, String region, int ageMin, int ageMax, int questions) throws IOException
+	{
+		File newStatsFile = new File(filePath);
+		newStatsFile.createNewFile();
+		String writeString = school + "," + region + "," + ageMin + "," + ageMax + System.getProperty("line.separator");
+		for(int i = 0; i < questions; i++)
+		{
+			writeString += System.getProperty("line.separator") + i + ",0,0,0,0,0,0,0";
+		}
+		FileWriter writer = new FileWriter(newStatsFile);
+		writer.write(writeString);
+		writer.close();
+	}
+	
+	class statPair
+	{
+		SimpleDoubleProperty stat;
+		SimpleStringProperty label;
+		double getStat()
+		{
+			return stat.get();
+		}
+		String getLabel()
+		{
+			return label.get();
+		}
+		
+		statPair(double stat, String label)
+		{
+			this.stat = new SimpleDoubleProperty(stat);
+			this.label = new SimpleStringProperty(label);
+		}
+	}
+	
+	public void displayStats(Group root, ObservableList<statPair> stats)
+	{
+		TableView<statPair> table = new TableView<>();
+		TableColumn<statPair, String> col1 = new TableColumn<>();
+		TableColumn<statPair, SimpleDoubleProperty> col2 = new TableColumn<>();
+		table.setItems(stats);
+		col1.setCellValueFactory(new PropertyValueFactory<>("label"));
+		col2.setCellValueFactory(new PropertyValueFactory<>("stat"));
+		
+		table.getColumns().addAll(col1, col2);
+		root.getChildren().add(table);
+	}
+	
 	public void displayMainPage()
 	{
 		Group root = new Group();
 		Stage stage = new Stage();
 		Scene scene = new Scene(root, 700, 500);
-		createQuestion();
 		//TODO: make a menu and do all that stuff
-		//TODO: 
 		stage.show();
 	}
 	
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) throws Exception{
 		passwordCheck(stage);
 	}
 }
