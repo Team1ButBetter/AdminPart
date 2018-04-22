@@ -308,7 +308,7 @@ public class AdminGui extends Application
 		root.getChildren().add(passwordMsg);
 		loginButton.setOnAction(new EventHandler<ActionEvent>()
 		{
-			public void handle(ActionEvent event)
+			public void handle(ActionEvent e)
 			{
 				LocalDateTime now = LocalDateTime.now();
 				if(attempts < maxAttempts || now.getMinute() - lockoutStamp.getMinute() > 15)
@@ -338,54 +338,13 @@ public class AdminGui extends Application
 		stage.show();
 	}
 	
-	public String[] CreateQuestion()
+	public String[] createQuestion()
 	{
-		Group root = new Group();
-		Stage stage = new Stage();
-		Scene scene = new Scene(root, 800, 600);
-		stage.setScene(scene);
-		InputBox question = new InputBox("question:");
-		InputBox[][] answersWrong = new InputBox[3][2];
-		InputBox[] answerCorrect = new InputBox[2];
-		
-		int[] position = {200, 100};
-		
-		question.setCentrePosition(position);
-		position[1] += 100;
-		InputBox engBox = new InputBox("Correct answer in English:", position);
-		answerCorrect[0] = engBox;
-		InputBox welshBox = new InputBox("Correct answer in Welsh:", new int[] {position[0] + 300, position[1]});
-		answerCorrect[1] = welshBox;
-		position[1] += 100;
-		root.getChildren().addAll(question.box, question.name);
-		root.getChildren().addAll(engBox.box, engBox.name);
-		root.getChildren().addAll(welshBox.box, welshBox.name);
-		
-		for(int i = 0; i < 3; i++)
-		{
-			engBox = new InputBox("Wrong answer " + (i + 1) + " in English:", position);
-			welshBox = new InputBox("Wrong answer " + (i + 1) + " in Welsh:", new int[] {position[0] + 300, position[1]});
-			answersWrong[i] = new InputBox[] {engBox, welshBox};
-			position[1] += 50;
-			root.getChildren().addAll(engBox.box, engBox.name);
-			root.getChildren().addAll(welshBox.box, welshBox.name);
-		}
-		String questionStr = question.box.getText();
-		String correctEngStr = answerCorrect[0].box.getText();
-		String correctWelStr = answerCorrect[1].box.getText();
-		String wrongEng1Str = answersWrong[0][0].box.getText();
-		String wrongWel1Str = answersWrong[0][1].box.getText();
-		String wrongEng2Str = answersWrong[1][0].box.getText();
-		String wrongWel2Str = answersWrong[1][1].box.getText();
-		String wrongEng3Str = answersWrong[2][0].box.getText();
-		String wrongWel3Str = answersWrong[2][1].box.getText();
-		
-		stage.show();
-		
-		return new String[] {questionStr, correctEngStr, correctWelStr, wrongEng1Str, wrongWel1Str, wrongEng2Str, wrongWel2Str, wrongEng3Str, wrongWel3Str};
+		String[] args = {"", "", "", "", "", "", "", "", ""};
+		return editQuestion(args);
 	}
 	
-	public String[] EditQuestion(String[] previousValues)
+	public String[] editQuestion(String[] previousValues)
 	{
 		Group root = new Group();
 		Stage stage = new Stage();
@@ -434,8 +393,15 @@ public class AdminGui extends Application
 		String wrongWel3Str = answersWrong[2][1].box.getText();
 		
 		Button submitBtn = new Button("submit");
-		
-		
+		submitBtn.setLayoutX(position[0] + 50);
+		submitBtn.setLayoutY(position[1] + 100);
+		submitBtn.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				return;
+			}
+		});
 		stage.show();
 		
 		return new String[] {questionStr, correctEngStr, correctWelStr, wrongEng1Str, wrongWel1Str, wrongEng2Str, wrongWel2Str, wrongEng3Str, wrongWel3Str};
@@ -446,7 +412,7 @@ public class AdminGui extends Application
 		Group root = new Group();
 		Stage stage = new Stage();
 		Scene scene = new Scene(root, 700, 500);
-		CreateQuestion();
+		createQuestion();
 		//TODO: make a menu and do all that stuff
 		//TODO: 
 		stage.show();
